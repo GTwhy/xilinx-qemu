@@ -20,10 +20,12 @@ jobs:
 
     - name: Configure and Build QEMU
       run: |
-        mkdir build
-        cd build
+        mkdir qemu_build
+        cd qemu_build
         ../configure  --target-list=x86_64-softmmu --enable-virtfs
-        make
+        make -j$(nproc)
+        cd ..
+        tar czf qemu_build.tar.gz qemu_build
 
     - name: Create release
       id: create_release
@@ -42,6 +44,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.ACTION_ACCESS_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/x86_64-softmmu/qemu-system-x86_64
-        asset_name: qemu-system-x86_64
+        asset_path: ./qemu_build.tar.gz
+        asset_name: qemu_build.tar.gz
         asset_content_type: application/octet-stream
